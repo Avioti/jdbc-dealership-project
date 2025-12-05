@@ -21,5 +21,52 @@ public class ColorCodes
     public static final String WHITE_BACKGROUND = "\u001B[47m";
 
     private ColorCodes(){}
+
+
+
+
+    // Bold
+    public static final String BOLD = "\033[1m";
+
+    // Bold High Intensity
+    public static final String BOLD_WHITE = "\033[1;97m";
+
+    /**
+     * Prints a header with color
+     */
+    public static void printHeader(String text) {
+        System.out.println(BOLD + CYAN + "\n" + "=".repeat(70) + RESET);
+        System.out.println(BOLD + CYAN + text + RESET);
+        System.out.println(BOLD + CYAN + "=".repeat(70) + RESET);
+    }
+
+    /**
+     * Prints a section header
+     */
+    public static void printSection(String text) {
+        System.out.println(BOLD + "\n" + text + RESET);
+        System.out.println("-".repeat(text.length()));
+    }
+
+    /**
+     * Prints success message
+     */
+    public static void printSuccess(String text) {
+        System.out.println(GREEN + "✓ " + text + RESET);
+    }
+
+    /**
+     * Prints error message
+     */
+    public static void printError(String text) {
+        System.out.println(RED + "✗ " + text + RESET);
+    }
+
+    /**
+     * Prints warning message
+     */
+    public static void printWarning(String text) {
+        System.out.println(YELLOW + "⚠ " + text + RESET);
+    }
     
 }

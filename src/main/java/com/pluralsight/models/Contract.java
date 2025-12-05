@@ -4,14 +4,14 @@ public abstract class Contract {
     protected String date,customerName,customerEmail;
     protected Vehicle vehicle;
     protected double totalPrice, monthlyPayment;
-    protected int ID;
+    protected int ID,vin;
 
-    public Contract(int ID,String date, String customerName, String customerEmail, Vehicle vehicle) {
+    public Contract(int ID,String date, String customerName, String customerEmail, int vin) {
         this.ID = ID;
         this.date = date;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
-        this.vehicle = vehicle;
+        this.vin = vin;
     }
 
     public String getDate() {
@@ -38,12 +38,17 @@ public abstract class Contract {
         this.customerEmail = customerEmail;
     }
 
-    public Vehicle getVehicle() {
-        return vehicle;
+    public int getID() {
+        return ID;
     }
-
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
+    public void setID(int ID) {
+        this.ID = ID;
+    }
+    public int getVin() {
+        return vin;
+    }
+    public void setVin(int vin) {
+        this.vin = vin;
     }
 
     public abstract double getTotalPrice();

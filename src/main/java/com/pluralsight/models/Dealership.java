@@ -157,37 +157,6 @@ public class Dealership {
 
 
 
-    public boolean addVehicle(Vehicle vehicle){
-
-        return inventory.add(vehicle);
-
-    }
-
-    public void addVehicle(int vin, int year, String make, String model, String vehicleType, String color, int odometer, double price){
-        try{
-
-            BufferedWriter writer  = new BufferedWriter(new FileWriter(DealershipFileManager.filePath, true));
-            if(DealershipFileManager.filePath.isBlank()){
-                String dealershipInfo = String.format("%s|%s|%s",this.name,this.address,this.phone);
-                writer.write(dealershipInfo);
-                writer.newLine();
-            }else{
-                String format = String.format("%d|%d|%s|%s|%s|%s|%d|%.2f", vin, year, make, model, vehicleType, color,odometer,price);
-                writer.write(format);
-                writer.close();
-
-                Vehicle car = new Vehicle(vin,year,make,model,vehicleType,color,odometer,price);
-
-                inventory.add(car);
-            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-
-
-        }
-
-    }
 
     public void removeVehicle(Vehicle vehicle){
 
