@@ -26,7 +26,7 @@ public class VehicleDao {
             Connection connection = dataManager.getConnection();
 
             try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setInt(1, vehicle.getVin());
+                statement.setString(1, vehicle.getVin());
                 statement.setInt(2, vehicle.getYear());
                 statement.setString(3, vehicle.getMake());
                 statement.setString(4, vehicle.getModel());
@@ -38,29 +38,79 @@ public class VehicleDao {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();;
+            e.printStackTrace();
+            ;
         }
     }
 
-    public void removeVehicle(int vin) {
-        String query = "DELETE FROM vehicles WHERE vin = ?";
+    public void removeVehicle(String vin) {
+
+        String deleteInventory = "DELETE FROM inventory WHERE vin = ?";
+        String markAsSold = "UPDATE vehicles SET sold = TRUE WHERE vin = ?";
 
         try {
             Connection connection = dataManager.getConnection();
 
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setInt(1, vin);
 
+            try (PreparedStatement statement = connection.prepareStatement(deleteInventory)) {
+                statement.setString(1, vin);
                 statement.executeUpdate();
             }
+
+
+            try (PreparedStatement statement = connection.prepareStatement(markAsSold)) {
+                statement.setString(1, vin);
+                statement.executeUpdate();
+            }
+
+            System.out.println("Vehicle removed from inventory and marked as sold.");
         } catch (SQLException e) {
-            e.printStackTrace();;
+            System.err.println("Error removing vehicle: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public void removeVehicle(List<Vehicle> vehicles) {
-       vehicles.forEach(vehicle -> removeVehicle(vehicle.getVin()));
+        vehicles.forEach(vehicle -> removeVehicle(vehicle.getVin()));
     }
+
+
+    public void deleteVehicle(String vin) {
+        String deleteSalesContracts = "DELETE FROM sales_contracts WHERE vin = ?";
+        String deleteLeaseContracts = "DELETE FROM lease_contracts WHERE vin = ?";
+        String deleteInventory = "DELETE FROM inventory WHERE vin = ?";
+        String deleteVehicle = "DELETE FROM vehicles WHERE vin = ?";
+
+        try {
+            Connection connection = dataManager.getConnection();
+
+            try (PreparedStatement statement = connection.prepareStatement(deleteSalesContracts)) {
+                statement.setString(1, vin);
+                statement.executeUpdate();
+            }
+
+            try (PreparedStatement statement = connection.prepareStatement(deleteLeaseContracts)) {
+                statement.setString(1, vin);
+                statement.executeUpdate();
+            }
+
+            try (PreparedStatement statement = connection.prepareStatement(deleteInventory)) {
+                statement.setString(1, vin);
+                statement.executeUpdate();
+            }
+
+            try (PreparedStatement statement = connection.prepareStatement(deleteVehicle)) {
+                statement.setString(1, vin);
+                statement.executeUpdate();
+            }
+
+            System.out.println("Vehicle completely deleted from database.");
+        } catch (SQLException e) {
+            System.err.println("Error deleting vehicle: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
     public List<Vehicle> getAll() {
         List<Vehicle> vehicles = new ArrayList<>();
@@ -74,7 +124,7 @@ public class VehicleDao {
                 try (ResultSet results = statement.executeQuery()) {
 
                     while (results.next()) {
-                        int vin = results.getInt("vin");
+                        String vin = results.getString("vin");
                         int year = results.getInt("year");
                         String make = results.getString("make");
                         String model = results.getString("model");
@@ -111,7 +161,7 @@ public class VehicleDao {
                 try (ResultSet results = statement.executeQuery()) {
 
                     while (results.next()) {
-                        int vin = results.getInt("vin");
+                        String vin = results.getString("vin");
                         int year = results.getInt("year");
                         String make = results.getString("make");
                         String model = results.getString("model");
@@ -149,7 +199,7 @@ public class VehicleDao {
                 try (ResultSet results = statement.executeQuery()) {
 
                     while (results.next()) {
-                        int vin = results.getInt("vin");
+                        String vin = results.getString("vin");
                         int year = results.getInt("year");
                         String vehicleType = results.getString("vehicle_type");
                         String color = results.getString("color");
@@ -163,7 +213,8 @@ public class VehicleDao {
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving vehicles by make and model: " + e.getMessage());
-            e.printStackTrace();;
+            e.printStackTrace();
+            ;
         }
         return vehicle;
 
@@ -184,7 +235,8 @@ public class VehicleDao {
                 try (ResultSet results = statement.executeQuery()) {
 
                     while (results.next()) {
-                        int vin = results.getInt("vin");
+                        String vin = results.getString("vin");
+                        int year = results.getInt("year");
                         String make = results.getString("make");
                         String model = results.getString("model");
                         String vehicleType = results.getString("vehicle_type");
@@ -192,14 +244,15 @@ public class VehicleDao {
                         int odometer = results.getInt("odometer");
                         double price = results.getDouble("price");
 
-                        Vehicle v = new Vehicle(vin, minYear, make, model, vehicleType, color, odometer, price);
+                        Vehicle v = new Vehicle(vin, year, make, model, vehicleType, color, odometer, price);
                         vehicle.add(v);
                     }
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving vehicles by year range: " + e.getMessage());
-            e.printStackTrace();;
+            e.printStackTrace();
+            ;
         }
         return vehicle;
 
@@ -219,7 +272,7 @@ public class VehicleDao {
                 try (ResultSet results = statement.executeQuery()) {
 
                     while (results.next()) {
-                        int vin = results.getInt("vin");
+                        String vin = results.getString("vin");
                         int year = results.getInt("year");
                         String make = results.getString("make");
                         String model = results.getString("model");
@@ -254,22 +307,24 @@ public class VehicleDao {
                 try (ResultSet results = statement.executeQuery()) {
 
                     while (results.next()) {
-                        int vin = results.getInt("vin");
+                        String vin = results.getString("vin");
                         int year = results.getInt("year");
                         String make = results.getString("make");
                         String model = results.getString("model");
                         String vehicleType = results.getString("vehicle_type");
                         String color = results.getString("color");
+                        int odometer = results.getInt("odometer");
                         double price = results.getDouble("price");
 
-                        Vehicle v = new Vehicle(vin, year, make, model, vehicleType, color, minMileage, price);
+                        Vehicle v = new Vehicle(vin, year, make, model, vehicleType, color, odometer, price);
                         vehicle.add(v);
                     }
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving vehicles by mileage range: " + e.getMessage());
-            e.printStackTrace();;
+            e.printStackTrace();
+            ;
         }
         return vehicle;
     }
@@ -288,7 +343,7 @@ public class VehicleDao {
                 try (ResultSet results = statement.executeQuery()) {
 
                     while (results.next()) {
-                        int vin = results.getInt("vin");
+                        String vin = results.getString("vin");
                         int year = results.getInt("year");
                         String make = results.getString("make");
                         String model = results.getString("model");
@@ -303,12 +358,13 @@ public class VehicleDao {
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving vehicles by type: " + e.getMessage());
-            e.printStackTrace();;
+            e.printStackTrace();
+            ;
         }
         return vehicle;
     }
 
-    public List<Vehicle> getByVin(int vin) {
+    public List<Vehicle> getByVin(String vin) {
         List<Vehicle> vehicle = new ArrayList<>();
 
         String query = "SELECT * FROM vehicles WHERE vin = ?";
@@ -317,7 +373,7 @@ public class VehicleDao {
             Connection connection = dataManager.getConnection();
 
             try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setInt(1, vin);
+                statement.setString(1, vin);
 
                 try (ResultSet results = statement.executeQuery()) {
 
@@ -337,7 +393,8 @@ public class VehicleDao {
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving vehicles by VIN: " + e.getMessage());
-            e.printStackTrace();;
+            e.printStackTrace();
+
         }
         return vehicle;
     }

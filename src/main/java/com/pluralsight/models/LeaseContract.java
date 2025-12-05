@@ -1,10 +1,13 @@
 package com.pluralsight.models;
 
+import java.time.LocalDate;
+
 public class LeaseContract extends Contract{
     private double expectedEndingValue,leaseFee;
+    private boolean isLeaseToOwn;
 
-    public LeaseContract(int ID,String date, String customerName, String customerEmail, Vehicle vehicle) {
-        super(ID,date, customerName, customerEmail, vehicle);
+    public LeaseContract(LocalDate date, String customerName, String customerEmail, String vin, double price, boolean isLeaseToOwn) {
+        super(date, customerName, customerEmail, vin, price);
 
     this.expectedEndingValue = getExpectedEndingValue();
     this.leaseFee = getLeaseFee();
@@ -16,6 +19,10 @@ public class LeaseContract extends Contract{
 
     public double getLeaseFee() {
         return 0.07 * vehicle.getPrice();
+    }
+
+    public boolean isLeaseToOwn() {
+        return isLeaseToOwn;
     }
 
     @Override

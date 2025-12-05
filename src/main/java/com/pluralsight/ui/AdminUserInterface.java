@@ -1,26 +1,22 @@
 package com.pluralsight.ui;
 
 import com.pluralsight.models.Contract;
-import com.pluralsight.data.ContractFileManager;
 
 import java.util.ArrayList;
 
-import static com.pluralsight.Program.scanner;
+import static com.pluralsight.ui.UserInterface.scanner;
 import static com.pluralsight.utility.Utility.ifNumber;
 
 public class AdminUserInterface{
     private String password;
-    private ContractFileManager contractManager;
 
 
 
-    public AdminUserInterface(String password, ContractFileManager contractManager) {
+    public AdminUserInterface(String password) {
         this.password = password;
-        this.contractManager = contractManager;
     }
 
     public void display(){
-        contractManager.readContracts();
         System.out.println("1 - List all Contracts");
         System.out.println("2 - List last 10 Contracts");
         System.out.println("0 - Exit to main menu");
@@ -64,9 +60,7 @@ public class AdminUserInterface{
 
     public void listAllContracts(){
 
-       for(int i = 0; i < contractManager.contracts.size(); i++){
-           System.out.println(contractManager.contracts.get(i));
-       }
+
 
     }
 

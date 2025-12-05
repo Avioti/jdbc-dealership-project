@@ -1,27 +1,40 @@
 package com.pluralsight.ui;
 
+import com.pluralsight.data.ContractDao;
+import com.pluralsight.data.DealershipDao;
+import com.pluralsight.data.VehicleDao;
 import com.pluralsight.models.LeaseContract;
 import com.pluralsight.models.SalesContract;
-import com.pluralsight.data.ContractFileManager;
+
 import com.pluralsight.models.Dealership;
 import com.pluralsight.models.Vehicle;
-import com.pluralsight.data.DealershipFileManager;
 
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Scanner;
 
-import static com.pluralsight.Program.scanner;
+
 import static com.pluralsight.utility.Utility.ifNumber;
 
 public class UserInterface {
     private Dealership dealership;
-    private ContractFileManager contractFileManager;
     private AdminUserInterface adminUserInterface;
     private boolean running = true;
     private int adminCreated;
+    private VehicleDao vehicleDao;
+    private ContractDao contractDao;
+    private DealershipDao dealershipDao;
+    private Vehicle vehicles;
+    public static Scanner scanner = new Scanner(System.in);
 
 
-    public UserInterface() {
+    public UserInterface(VehicleDao vehicleDao, ContractDao contractDao, DealershipDao dealershipDao) {
+        this.vehicleDao = vehicleDao;
+        this.contractDao = contractDao;
+        this.dealershipDao = dealershipDao;
 
     }
 
@@ -46,12 +59,12 @@ public class UserInterface {
         System.out.println("3 - Find Vehicles by year range");
         System.out.println("4 - Find Vehicles by color");
         System.out.println("5 - Find Vehicles by mileage range");
-        System.out.println("6 - Find Vehicles by type (car, truck, SUV, van)");
+        System.out.println("6 - Find Vehicles by type (Sedan, truck, SUV, Hatchback, etc.)");
         System.out.println("7 - List ALL Vehicles");
         System.out.println("8 - Add a Vehicle");
         System.out.println("9 - Remove a Vehicle");
         System.out.println("10 - Sell/Lease a Vehicle");
-        System.out.println("11 - Admin Menu");
+
         System.out.println("99 - Quit");
     }
 
@@ -96,20 +109,9 @@ public class UserInterface {
     }
 
     private void init() {
-        dealership = DealershipFileManager.getDealership();
-        contractFileManager = new ContractFileManager();
-
-        System.out.println(DealershipFileManager.getDealership());
-    }
-
-    private void displayVehicles(ArrayList<Vehicle> vehicles) {
-        for (Vehicle car : vehicles) {
-
-            System.out.println(car);
-
-        }
 
     }
+
 
     public void processGetByPriceRequest() {
 
@@ -120,7 +122,7 @@ public class UserInterface {
         double max = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.println(dealership.getVehiclesByPrice(min, max));
+        System.out.println(vehicleDao.getByPriceRange(min, max));
 
 
     }
@@ -133,7 +135,7 @@ public class UserInterface {
         String model = scanner.nextLine();
 
 
-        System.out.println(dealership.getVehiclesByMakeModel(make, model));
+        System.out.println(vehicleDao.getByMakeModel(make, model));
 
     }
 
@@ -146,7 +148,7 @@ public class UserInterface {
         int max = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.println(dealership.getVehiclesByYear(min, max));
+        System.out.println(vehicleDao.getByYearRange(min, max));
 
     }
 
@@ -155,7 +157,7 @@ public class UserInterface {
         String color = scanner.nextLine();
 
 
-        System.out.println(dealership.getVehiclesByColor(color));
+        System.out.println(vehicleDao.getByColor(color));
     }
 
     public void processGetByMileageRequest() {
@@ -168,7 +170,7 @@ public class UserInterface {
         scanner.nextLine();
 
 
-        System.out.println(dealership.getVehiclesByMileage(min, max));
+        System.out.println(vehicleDao.getByMileageRange(min, max));
 
     }
 
@@ -178,26 +180,19 @@ public class UserInterface {
         String type = scanner.nextLine();
 
 
-        System.out.println(dealership.getVehiclesByType(type));
+        System.out.println(vehicleDao.getByType(type));
 
     }
 
     public void processGetAllVehiclesRequest() {
 
-        ArrayList<Vehicle> vehicleList = dealership.getAllVehicle();
-
-
-        displayVehicles(vehicleList);
+        System.out.println(vehicleDao.getAll() + "\n");
 
     }
 
-    public Vehicle processVehicleByVin(int vin) {
-        for (Vehicle vehicle : dealership.getAllVehicle()) {
-            if (vehicle.getVin() == vin) {
-                return vehicle;
-            }
-        }
-        return null;
+    public List<Vehicle> processVehicleByVin(String vin) {
+
+        return vehicleDao.getByVin(vin);
     }
 
     public void processAddVehicleRequest() {
@@ -205,8 +200,7 @@ public class UserInterface {
         System.out.println("Enter Vehicle Details");
 
         System.out.print("Vin: ");
-        int vin = scanner.nextInt();
-        scanner.nextLine();
+        String vin = scanner.nextLine();
         System.out.print("Year: ");
         int year = scanner.nextInt();
         scanner.nextLine();
@@ -225,7 +219,8 @@ public class UserInterface {
         double price = scanner.nextDouble();
         scanner.nextLine();
 
-        dealership.addVehicle(vin, year, make, model, vehicleType, color, odometer, price);
+        vehicleDao.addVehicle(new Vehicle(vin, year, make, model, vehicleType, color, odometer, price));
+
 
     }
 
@@ -259,13 +254,13 @@ public class UserInterface {
         String price = scanner.nextLine().trim().replaceAll("\\s", "");
 
 
-        for (Vehicle car : dealership.getAllVehicle()) {
+        for (Vehicle car : vehicleDao.getAll()) {
 
 
             boolean matches = true;
 
             try {
-                if (!vin.isBlank() && car.getVin() == Integer.parseInt(vin)) {
+                if (!vin.isBlank() && !car.getVin().equalsIgnoreCase(vin)) {
                     matches = false;
                 }
                 if (!year.isBlank() && car.getYear() == Integer.parseInt(year)) {
@@ -298,7 +293,7 @@ public class UserInterface {
 
 
             if (matches) {
-                dealership.removeVehicle(car);
+                vehicleDao.removeVehicle(car.getVin());
                 System.out.println("Vehicle removed.");
             }
 
@@ -308,11 +303,9 @@ public class UserInterface {
     }
 
 
-
     public void processSellLease() {
         System.out.println("Hello Thank you for inquiring before we move forward please answer the following questions.");
-        System.out.print("Today's Date: ");
-        String date = scanner.nextLine();
+        LocalDate date = LocalDate.now();
 
         System.out.print("What is your name: ");
         String name = scanner.nextLine();
@@ -322,9 +315,9 @@ public class UserInterface {
 
         System.out.println("What vehicle are you interested in?");
         System.out.print("Enter Vin #: ");
-        int vin = scanner.nextInt();
-        scanner.nextLine();
-        Vehicle vehicle = processVehicleByVin(vin);
+        String vin = scanner.nextLine();
+        List<Vehicle> vehicle = processVehicleByVin(vin);
+        double price = vehicle.get(0).getPrice();
 
         System.out.println("Will you be Purchasing or Leasing this Vehicle?");
         System.out.println("1 - Buying");
@@ -335,47 +328,40 @@ public class UserInterface {
             case 1 -> {
 
                 System.out.println("Will you be Financing? (Y/N)");
+
                 if (scanner.nextLine().equalsIgnoreCase("y")) {
-                    contractFileManager.saveContract(new SalesContract(1,date, name, email, vehicle, true));
+                    contractDao.saveSalesContract(new SalesContract(date, name, email, vin, price, true));
                 } else {
-                    contractFileManager.saveContract(new SalesContract(1,date, name, email, vehicle, false));
+                    contractDao.saveSalesContract(new SalesContract(date, name, email, vin, price, false));
                 }
-                dealership.removeVehicle(vehicle);
+                System.out.println("Sales contract saved!");
+                vehicleDao.removeVehicle(vehicle);
             }
             case 2 -> {
+                System.out.println("Will you be leasing to own? (Y/N)");
+                boolean leaseToOwn;
+                leaseToOwn = scanner.nextLine().equalsIgnoreCase("y") || scanner.nextLine().equalsIgnoreCase("yes");
                 int currentDate = LocalDateTime.now().getYear();
-                int age = currentDate - vehicle.getYear();
+                int age = currentDate - vehicle.get(0).getYear();
                 if (age > 3) {
                     System.out.println("Sorry cannot lease this Vehicle");
                     break;
                 }
-                contractFileManager.saveContract(new LeaseContract(1,date, name, email, vehicle));
-                dealership.removeVehicle(vehicle);
+                contractDao.saveLeaseContract(new LeaseContract(date, name, email, vin, price, leaseToOwn));
+                System.out.println("Lease contract saved!");
+                vehicleDao.removeVehicle(vehicle);
 
             }
         }
 
     }
 
-    public void adminSetup(){
-        if(adminCreated == 0){
-            System.out.println("Admin Setup");
-            System.out.print("Enter password: ");
-            String password = scanner.nextLine();
-            adminUserInterface = new AdminUserInterface(password,contractFileManager);
-            adminCreated += 1;
-            adminUserInterface.display();
-        }else{
-            System.out.println("Log in");
-            System.out.print("Enter password: ");
-            String password = scanner.nextLine();
-            adminUserInterface.authenticate(password);
-            adminUserInterface.display();
-        }
+    public void adminSetup() {
+
     }
 
-    public void adminCommand(){
-        if(adminCreated >= 1){
+    public void adminCommand() {
+        if (adminCreated >= 1) {
 
         }
 

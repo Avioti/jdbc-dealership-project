@@ -1,25 +1,37 @@
 package com.pluralsight.models;
 
+import java.time.LocalDate;
+
 public abstract class Contract {
-    protected String date,customerName,customerEmail;
+    protected LocalDate date;
+    protected String customerName,customerEmail;
     protected Vehicle vehicle;
     protected double totalPrice, monthlyPayment;
-    protected int ID,vin;
+    protected double price;
+    protected String vin;
 
-    public Contract(int ID,String date, String customerName, String customerEmail, int vin) {
-        this.ID = ID;
+    public Contract(LocalDate date, String customerName, String customerEmail, String vin, double price) {
         this.date = date;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
         this.vin = vin;
+        this.price = price;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public String getCustomerName() {
@@ -38,16 +50,10 @@ public abstract class Contract {
         this.customerEmail = customerEmail;
     }
 
-    public int getID() {
-        return ID;
-    }
-    public void setID(int ID) {
-        this.ID = ID;
-    }
-    public int getVin() {
+    public String getVin() {
         return vin;
     }
-    public void setVin(int vin) {
+    public void setVin(String vin) {
         this.vin = vin;
     }
 

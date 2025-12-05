@@ -1,13 +1,15 @@
 package com.pluralsight.models;
 
+import java.time.LocalDate;
+
 public class SalesContract extends Contract {
     private double salesTax, processingFee;
     private double recordingFee = 100;
     private boolean financeOption;
 
 
-    public SalesContract(int ID,String date, String customerName, String customerEmail, Vehicle vehicle, boolean financeOption) {
-        super(ID,date, customerName, customerEmail, vehicle);
+    public SalesContract(LocalDate date, String customerName, String customerEmail, String vin, double price, boolean financeOption) {
+        super(date, customerName, customerEmail, vin, price);
         this.salesTax = 0.05;
         this.processingFee = 295;
         this.recordingFee = 100;
